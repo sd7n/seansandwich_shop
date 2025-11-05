@@ -14,10 +14,29 @@ class App extends StatelessWidget {
       title: 'Sandwich Shop App',
       home: Scaffold(
         appBar: AppBar(title: const Text('Sandwich Counter')),
-        body: const Center(
-          child: OrderItemDisplay(5, 'Footlong'),
+ body: const Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 12.0, left: 12.0, right: 12.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(child: OrderCompactDisplay(3, 'BLT sandwich(es)')),
+                  SizedBox(width: 8),
+                  Expanded(child: OrderCompactDisplay(3, 'Club sandwich(es)')),
+                  SizedBox(width: 8),
+                  Expanded(child: OrderCompactDisplay(2, 'Veggie sandwich(es)')),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Center(
+                child: OrderItemDisplay(5, 'Footlong'),
+              ),
+            ),
+          ],
         ),
-      )
+      ),
     );
   }
 }
@@ -40,6 +59,40 @@ class OrderItemDisplay extends StatelessWidget {
         style: const TextStyle(color: Colors.black, fontSize: 18),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+}
+
+// Compact display for top row
+class OrderCompactDisplay extends StatelessWidget {
+  final String itemType;
+  final int quantity;
+
+  const OrderCompactDisplay(this.quantity, this.itemType, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          // Quantity first
+          Text(
+            '$quantity ',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          // Sandwich name and emoji together
+          Expanded(
+            child: Text(
+              '$itemType ${List.filled(quantity, '🥪').join()}',
+              style: const TextStyle(fontSize: 16),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }

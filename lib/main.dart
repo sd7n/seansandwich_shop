@@ -40,20 +40,21 @@ class _OrderScreenState extends State<OrderScreen> {
 
   void _increaseQuantity() {
   if (_quantity < widget.maxQuantity) {
-    final note = _noteController.text.trim();
     setState(() => _quantity++);
   }
 }
 
 void _decreaseQuantity() {
   if (_quantity > 0) {
-    final note = _noteController.text.trim();
     setState(() => _quantity--);
   }
 }
 
   @override
   Widget build(BuildContext context) {
+    final bool canIncrease = _quantity < widget.maxQuantity;
+    final bool canDecrease = _quantity > 0;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sandwich Counter'),
@@ -86,14 +87,14 @@ void _decreaseQuantity() {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 StyledButton(
-                  onPressed: _increaseQuantity,
+                  onPressed: canIncrease ? _increaseQuantity : null,
                   text: 'Add',
                   icon: Icons.add_circle,
                   backgroundColor: Colors.green,
                 ),
                 const SizedBox(width: 20),
                 StyledButton(
-                  onPressed: _decreaseQuantity,
+                  onPressed: canDecrease ? _decreaseQuantity : null,
                   text: 'Remove',
                   icon: Icons.remove_circle,
                   backgroundColor: Colors.red,
@@ -290,14 +291,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 class StyledButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final String text;
   final IconData? icon;
   final Color backgroundColor;
   final Color foregroundColor;
 
   const StyledButton({
-    required this.onPressed,
+    this.onPressed,
     required this.text,
     this.icon,
     this.backgroundColor = Colors.blue,
@@ -308,7 +309,7 @@ class StyledButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: onPressed,
+      onPressed: onPressed, //null => disabled
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor,
         foregroundColor: foregroundColor,

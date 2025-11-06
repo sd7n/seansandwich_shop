@@ -30,15 +30,24 @@ class OrderScreen extends StatefulWidget {
 
 class _OrderScreenState extends State<OrderScreen> {
   int _quantity = 0;
+  final TextEditingController _noteController = TextEditingController();
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
+  }
 
   void _increaseQuantity() {
   if (_quantity < widget.maxQuantity) {
+    final note = _noteController.text.trim();
     setState(() => _quantity++);
   }
 }
 
 void _decreaseQuantity() {
   if (_quantity > 0) {
+    final note = _noteController.text.trim();
     setState(() => _quantity--);
   }
 }
@@ -57,6 +66,21 @@ void _decreaseQuantity() {
               _quantity,
               'Footlong',
             ),
+
+            //Inserted TextField for notes
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: _noteController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Notes (e.g. "no onions")',
+                ),
+                textInputAction: TextInputAction.done,
+                //optional: onChanged: (s) => setState(() {}), //if you want live preview 
+              ),
+            ),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -80,8 +104,9 @@ void _decreaseQuantity() {
 class OrderItemDisplay extends StatelessWidget {
   final String itemType;
   final int quantity;
+  final String? note;
 
-  const OrderItemDisplay(this.quantity, this.itemType, {super.key});
+  const OrderItemDisplay(this.quantity, this.itemType, {this.note, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -90,11 +115,21 @@ class OrderItemDisplay extends StatelessWidget {
       height: 200,
       color: Colors.blue,
       alignment: Alignment.center,
-      child: Text(
-        '$quantity $itemType sandwich(es): ${List.filled(quantity, '🥪').join()}',
-        style: const TextStyle(color: Colors.black, fontSize: 18),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '$quantity $itemType sandwich(es): ${List.filled(quantity, '🥪').join()}',
+            style: const TextStyle(color: Colors.black, fontSize: 18),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (note != null && note!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text('Note: $note', style: const TextStyle(color: Colors.black)),
+            ),
+        ],
       ),
     );
   }

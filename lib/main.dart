@@ -65,6 +65,7 @@ void _decreaseQuantity() {
             OrderItemDisplay(
               _quantity,
               'Footlong',
+              note: _noteController.text.trim(),
             ),
 
             //Inserted TextField for notes
@@ -82,15 +83,20 @@ void _decreaseQuantity() {
             ),
 
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(
+                StyledButton(
                   onPressed: _increaseQuantity,
-                  child: const Text('Add'),
+                  text: 'Add',
+                  icon: Icons.add_circle,
+                  backgroundColor: Colors.green,
                 ),
-                ElevatedButton(
+                const SizedBox(width: 20),
+                StyledButton(
                   onPressed: _decreaseQuantity,
-                  child: const Text('Remove'),
+                  text: 'Remove',
+                  icon: Icons.remove_circle,
+                  backgroundColor: Colors.red,
                 )
               ]
             )
@@ -278,6 +284,49 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+
+class StyledButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  final String text;
+  final IconData? icon;
+  final Color backgroundColor;
+  final Color foregroundColor;
+
+  const StyledButton({
+    required this.onPressed,
+    required this.text,
+    this.icon,
+    this.backgroundColor = Colors.blue,
+    this.foregroundColor = Colors.white,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon),
+            const SizedBox(width: 8),
+          ],
+          Text(
+            text,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
+          )
+        ]
+      )
     );
   }
 }

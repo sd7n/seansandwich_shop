@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sandwich_shop/views/app_styles.dart';
+import 'package:seansandwich_shop/views/app_styles.dart';
 
 void main() {
   runApp(const App());

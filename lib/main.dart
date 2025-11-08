@@ -35,6 +35,7 @@ class _OrderScreenState extends State<OrderScreen> {
   late final OrderRepository _orderRepository;
   final TextEditingController _notesController = TextEditingController();
   bool _isFootlong = true;
+  bool _isToasted = false; // <-- added toasted state
   BreadType _selectedBreadType = BreadType.white;
 
   @override
@@ -118,6 +119,7 @@ class _OrderScreenState extends State<OrderScreen> {
               itemType: sandwichType,
               breadType: _selectedBreadType,
               orderNote: noteForDisplay,
+              isToasted: _isToasted, // <-- pass toasted state
             ),
             const SizedBox(height: 20),
             Row(
@@ -129,6 +131,20 @@ class _OrderScreenState extends State<OrderScreen> {
                   onChanged: _onSandwichTypeChanged,
                 ),
                 const Text('footlong', style: normalText),
+              ],
+            ),
+            // <-- new toasted switch row (placed just after sandwich type Row)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('untoasted', style: normalText),
+                Switch(
+                  value: _isToasted,
+                  onChanged: (value) {
+                    setState(() => _isToasted = value);
+                  },
+                ),
+                const Text('toasted', style: normalText),
               ],
             ),
             const SizedBox(height: 10),
@@ -216,6 +232,7 @@ class OrderItemDisplay extends StatelessWidget {
   final String itemType;
   final BreadType breadType;
   final String orderNote;
+  final bool isToasted; // <-- added field
 
   const OrderItemDisplay({
     super.key,
@@ -223,12 +240,17 @@ class OrderItemDisplay extends StatelessWidget {
     required this.itemType,
     required this.breadType,
     required this.orderNote,
+    required this.isToasted, // <-- added constructor param
   });
 
   @override
   Widget build(BuildContext context) {
+    final String emojis = List.filled(quantity, '🥪').join();
+    final String sandwichWord = quantity == 1 ? 'sandwich' : 'sandwiches';
+    final String toastedText = isToasted ? 'toasted' : 'untoasted';
+
     String displayText =
-        '$quantity ${breadType.name} $itemType sandwich(es): ${'🥪' * quantity}';
+        '$quantity ${breadType.name} $itemType ($toastedText) $sandwichWord: $emojis';
 
     return Column(
       children: [

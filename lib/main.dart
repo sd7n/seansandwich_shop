@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'views/app_styles.dart';
 import 'repositories/order_repository.dart';
+import 'repositories/PricingRepository.dart'; // <-- new import
 
 enum BreadType { white, wheat, wholemeal }
 
@@ -33,6 +34,7 @@ class OrderScreen extends StatefulWidget {
 
 class _OrderScreenState extends State<OrderScreen> {
   late final OrderRepository _orderRepository;
+  late final PricingRepository _pricingRepository; // <-- added pricing repo
   final TextEditingController _notesController = TextEditingController();
   bool _isFootlong = true;
   bool _isToasted = false; // <-- added toasted state
@@ -42,6 +44,7 @@ class _OrderScreenState extends State<OrderScreen> {
   void initState() {
     super.initState();
     _orderRepository = OrderRepository(maxQuantity: widget.maxQuantity);
+    _pricingRepository = PricingRepository(); // <-- initialize with defaults
     _notesController.addListener(() {
       setState(() {});
     });
@@ -103,6 +106,12 @@ class _OrderScreenState extends State<OrderScreen> {
       noteForDisplay = _notesController.text;
     }
 
+    // Compute total price using the pricing repository
+    final double totalPrice = _pricingRepository.calculateTotal(
+      quantity: _orderRepository.quantity,
+      isFootlong: _isFootlong,
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -119,7 +128,8 @@ class _OrderScreenState extends State<OrderScreen> {
               itemType: sandwichType,
               breadType: _selectedBreadType,
               orderNote: noteForDisplay,
-              isToasted: _isToasted, // <-- pass toasted state
+              isToasted: _isToasted,
+              totalPrice: totalPrice, // <-- pass total price
             ),
             const SizedBox(height: 20),
             Row(
@@ -233,6 +243,7 @@ class OrderItemDisplay extends StatelessWidget {
   final BreadType breadType;
   final String orderNote;
   final bool isToasted; // <-- added field
+  final double totalPrice; // <-- added total price field
 
   const OrderItemDisplay({
     super.key,
@@ -241,6 +252,7 @@ class OrderItemDisplay extends StatelessWidget {
     required this.breadType,
     required this.orderNote,
     required this.isToasted, // <-- added constructor param
+    required this.totalPrice, // <-- added total price constructor param
   });
 
   @override
@@ -250,7 +262,7 @@ class OrderItemDisplay extends StatelessWidget {
     final String toastedText = isToasted ? 'toasted' : 'untoasted';
 
     String displayText =
-        '$quantity ${breadType.name} $itemType ($toastedText) $sandwichWord: $emojis';
+        '$quantity ${breadType.name} $toastedText $itemType $sandwichWord: $emojis';
 
     return Column(
       children: [
@@ -262,6 +274,12 @@ class OrderItemDisplay extends StatelessWidget {
         Text(
           'Note: $orderNote',
           style: normalText,
+        ),
+        const SizedBox(height: 8),
+        // <-- new row for total price
+        Text(
+          'Total Price: \$${totalPrice.toStringAsFixed(2)}',
+          style: normalText.copyWith(fontWeight: FontWeight.bold),
         ),
       ],
     );

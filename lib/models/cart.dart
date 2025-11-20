@@ -1,3 +1,4 @@
+import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/repositories/PricingRepository.dart';
 import 'cart_item.dart';
 
@@ -74,4 +75,6 @@ class Cart {
     }
     return null;
   }
+
+  void add(Sandwich sandwich, {required int quantity}) {}
 }

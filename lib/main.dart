@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/models/cart.dart';
-
-enum BreadType { white, wheat, wholemeal }
+import 'package:sandwich_shop/repositories/PricingRepository.dart';
 
 void main() {
   runApp(const App());
@@ -34,6 +33,7 @@ class OrderScreen extends StatefulWidget {
 
 class _OrderScreenState extends State<OrderScreen> {
   final Cart _cart = Cart();
+  final PricingRepository _pricingRepository = PricingRepository();
   final TextEditingController _notesController = TextEditingController();
 
   SandwichType _selectedSandwichType = SandwichType.veggieDelight;
@@ -75,6 +75,22 @@ class _OrderScreenState extends State<OrderScreen> {
       }
       String confirmationMessage =
           'Added $_quantity $sizeText ${sandwich.name} sandwich(es) on ${_selectedBreadType.name} bread to cart';
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(confirmationMessage),
+          duration: const Duration(seconds: 3),
+          backgroundColor: Colors.green,
+          action: SnackBarAction(
+            label: 'Undo',
+            textColor: Colors.white,
+            onPressed: () {
+              // Implement undo functionality if needed
+              debugPrint('Undo pressed');
+            },
+          ),
+        ),
+      );
 
       debugPrint(confirmationMessage);
     }
@@ -122,6 +138,13 @@ class _OrderScreenState extends State<OrderScreen> {
     return sandwich.image;
   }
 
+  double _calculatePrice() {
+    return _pricingRepository.calculateTotal(
+      quantity: _quantity,
+      isFootlong: _isFootlong,
+    );
+  }
+
   void _onSandwichTypeChanged(SandwichType? value) {
     if (value != null) {
       setState(() {
@@ -151,7 +174,7 @@ class _OrderScreenState extends State<OrderScreen> {
   }
 
   void _decreaseQuantity() {
-    if (_quantity > 0) {
+    if (_quantity > 1) {
       setState(() {
         _quantity--;
       });
@@ -159,7 +182,7 @@ class _OrderScreenState extends State<OrderScreen> {
   }
 
   VoidCallback? _getDecreaseCallback() {
-    if (_quantity > 0) {
+    if (_quantity > 1) {
       return _decreaseQuantity;
     }
     return null;
@@ -167,8 +190,14 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final double currentPrice = _calculatePrice();
+
     return Scaffold(
       appBar: AppBar(
+        leading: SizedBox(
+          height: 100,
+          child: Image.asset('assets/images/logo.png'),
+        ),
         title: const Text(
           'Sandwich Counter',
           style: heading1,
@@ -176,79 +205,94 @@ class _OrderScreenState extends State<OrderScreen> {
       ),
       body: Center(
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(
-                height: 300,
-                child: Image.asset(
-                  _getCurrentImagePath(),
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Center(
-                      child: Text(
-                        'Image not found',
-                        style: normalText,
-                      ),
-                    );
-                  },
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  height: 300,
+                  child: Image.asset(
+                    _getCurrentImagePath(),
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Center(
+                        child: Text(
+                          'Image not found',
+                          style: normalText,
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              DropdownMenu<SandwichType>(
-                width: double.infinity,
-                label: const Text('Sandwich Type'),
-                textStyle: normalText,
-                initialSelection: _selectedSandwichType,
-                onSelected: _onSandwichTypeChanged,
-                dropdownMenuEntries: _buildSandwichTypeEntries(),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Six-inch', style: normalText),
-                  Switch(
-                    value: _isFootlong,
-                    onChanged: _onSizeChanged,
-                  ),
-                  const Text('Footlong', style: normalText),
-                ],
-              ),
-              const SizedBox(height: 20),
-              DropdownMenu<BreadType>(
-                width: double.infinity,
-                label: const Text('Bread Type'),
-                textStyle: normalText,
-                initialSelection: _selectedBreadType,
-                onSelected: _onBreadTypeChanged,
-                dropdownMenuEntries: _buildBreadTypeEntries(),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Quantity: ', style: normalText),
-                  IconButton(
-                    onPressed: _getDecreaseCallback(),
-                    icon: const Icon(Icons.remove),
-                  ),
-                  Text('$_quantity', style: heading2),
-                  IconButton(
-                    onPressed: _increaseQuantity,
-                    icon: const Icon(Icons.add),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              StyledButton(
-                onPressed: _getAddToCartCallback(),
-                icon: Icons.add_shopping_cart,
-                label: 'Add to Cart',
-                backgroundColor: Colors.green,
-              ),
-              const SizedBox(height: 20),
-            ],
+                const SizedBox(height: 20),
+                DropdownMenu<SandwichType>(
+                  width: double.infinity,
+                  label: const Text('Sandwich Type'),
+                  textStyle: normalText,
+                  initialSelection: _selectedSandwichType,
+                  onSelected: _onSandwichTypeChanged,
+                  dropdownMenuEntries: _buildSandwichTypeEntries(),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Six-inch', style: normalText),
+                    Switch(
+                      value: _isFootlong,
+                      onChanged: _onSizeChanged,
+                    ),
+                    const Text('Footlong', style: normalText),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                DropdownMenu<BreadType>(
+                  width: double.infinity,
+                  label: const Text('Bread Type'),
+                  textStyle: normalText,
+                  initialSelection: _selectedBreadType,
+                  onSelected: _onBreadTypeChanged,
+                  dropdownMenuEntries: _buildBreadTypeEntries(),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Quantity: ', style: normalText),
+                    StyledButton(
+                      onPressed: _getDecreaseCallback(),
+                      icon: Icons.remove,
+                      label: 'Remove',
+                      backgroundColor: Colors.red,
+                    ),
+                    const SizedBox(width: 12),
+                    Text('$_quantity', style: heading1),
+                    const SizedBox(width: 12),
+                    StyledButton(
+                      onPressed: _increaseQuantity,
+                      icon: Icons.add,
+                      label: 'Add',
+                      backgroundColor: Colors.green,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Price: \$${currentPrice.toStringAsFixed(2)}',
+                  style: normalText.copyWith(fontWeight: FontWeight.bold, fontSize: 18),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                StyledButton(
+                  onPressed: _getAddToCartCallback(),
+                  icon: Icons.add_shopping_cart,
+                  label: 'Add to Cart',
+                  backgroundColor: Colors.green,
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),

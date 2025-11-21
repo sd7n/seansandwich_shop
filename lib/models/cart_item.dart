@@ -1,4 +1,3 @@
-import 'package:sandwich_shop/main.dart' hide BreadType;
 import 'sandwich.dart';
 
 class CartItem {

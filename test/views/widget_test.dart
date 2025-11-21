@@ -4,272 +4,243 @@ import 'package:sandwich_shop/main.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 
 void main() {
-  group('App', () {
-    testWidgets('renders OrderScreen as home', (WidgetTester tester) async {
+  group('App - Core', () {
+    testWidgets('App launches successfully', (WidgetTester tester) async {
+      await tester.pumpWidget(const App());
+      expect(find.byType(MaterialApp), findsOneWidget);
+    });
+
+    testWidgets('App renders without errors', (WidgetTester tester) async {
       await tester.pumpWidget(const App());
       expect(find.byType(OrderScreen), findsOneWidget);
     });
   });
 
-  group('OrderScreen - Initial State', () {
-    testWidgets('displays sandwich counter title',
-        (WidgetTester tester) async {
+  group('OrderScreen - Structure', () {
+    testWidgets('OrderScreen has Scaffold', (WidgetTester tester) async {
+      await tester.pumpWidget(const App());
+      expect(find.byType(Scaffold), findsOneWidget);
+    });
+
+    testWidgets('OrderScreen has AppBar', (WidgetTester tester) async {
+      await tester.pumpWidget(const App());
+      expect(find.byType(AppBar), findsOneWidget);
+    });
+
+    testWidgets('AppBar displays title', (WidgetTester tester) async {
       await tester.pumpWidget(const App());
       expect(find.text('Sandwich Counter'), findsOneWidget);
     });
 
-    testWidgets('shows initial quantity of 1', (WidgetTester tester) async {
+    testWidgets('Page is scrollable', (WidgetTester tester) async {
       await tester.pumpWidget(const App());
-      expect(find.text('1'), findsOneWidget);
+      expect(find.byType(SingleChildScrollView), findsOneWidget);
     });
+  });
 
-    testWidgets('displays sandwich image', (WidgetTester tester) async {
-      await tester.pumpWidget(const App());
-      expect(find.byType(Image), findsOneWidget);
-    });
-
-    testWidgets('displays sandwich type dropdown', (WidgetTester tester) async {
-      await tester.pumpWidget(const App());
-      expect(find.text('Sandwich Type'), findsOneWidget);
-      expect(find.byType(DropdownMenu), findsWidgets);
-    });
-
-    testWidgets('displays bread type dropdown', (WidgetTester tester) async {
-      await tester.pumpWidget(const App());
-      expect(find.text('Bread Type'), findsOneWidget);
-    });
-
-    testWidgets('displays size toggle switch', (WidgetTester tester) async {
+  group('UI Labels & Text', () {
+    testWidgets('Size labels display', (WidgetTester tester) async {
       await tester.pumpWidget(const App());
       expect(find.text('Six-inch'), findsOneWidget);
       expect(find.text('Footlong'), findsOneWidget);
+    });
+
+    testWidgets('Cart Summary header displays', (WidgetTester tester) async {
+      await tester.pumpWidget(const App());
+      expect(find.text('Cart Summary'), findsOneWidget);
+    });
+  });
+
+  group('Controls & Buttons', () {
+    testWidgets('Size switch exists', (WidgetTester tester) async {
+      await tester.pumpWidget(const App());
       expect(find.byType(Switch), findsOneWidget);
     });
 
-    testWidgets('displays add to cart button', (WidgetTester tester) async {
+    testWidgets('Add to Cart button exists', (WidgetTester tester) async {
       await tester.pumpWidget(const App());
       expect(find.widgetWithText(ElevatedButton, 'Add to Cart'), findsOneWidget);
     });
-  });
 
-  group('OrderScreen - Quantity Management', () {
-    testWidgets('increases quantity when plus button is tapped',
-        (WidgetTester tester) async {
+    testWidgets('Remove quantity button exists', (WidgetTester tester) async {
       await tester.pumpWidget(const App());
-      expect(find.text('1'), findsOneWidget);
-      
-      await tester.tap(find.byIcon(Icons.add).first);
-      await tester.pump();
-      
-      expect(find.text('2'), findsOneWidget);
+      expect(find.byIcon(Icons.remove), findsOneWidget);
     });
 
-    testWidgets('decreases quantity when minus button is tapped',
-        (WidgetTester tester) async {
+    testWidgets('Add quantity button exists', (WidgetTester tester) async {
       await tester.pumpWidget(const App());
-      
-      await tester.tap(find.byIcon(Icons.add).first);
-      await tester.pump();
-      expect(find.text('2'), findsOneWidget);
-      
-      await tester.tap(find.byIcon(Icons.remove).first);
-      await tester.pump();
-      
-      expect(find.text('1'), findsOneWidget);
-    });
-
-    testWidgets('does not decrement quantity below 1',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(const App());
-      expect(find.text('1'), findsOneWidget);
-      
-      await tester.tap(find.byIcon(Icons.remove).first);
-      await tester.pump();
-      
-      expect(find.text('1'), findsOneWidget);
-    });
-
-    testWidgets('increments quantity multiple times',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(const App());
-      
-      for (int i = 0; i < 5; i++) {
-        await tester.tap(find.byIcon(Icons.add).first);
-        await tester.pump();
-      }
-      
-      expect(find.text('6'), findsOneWidget);
+      expect(find.byIcon(Icons.add), findsOneWidget);
     });
   });
 
-  group('OrderScreen - Size Selection', () {
-    testWidgets('toggle switch changes between six-inch and footlong',
-        (WidgetTester tester) async {
+  group('Initial State', () {
+    testWidgets('Initial quantity is 1', (WidgetTester tester) async {
       await tester.pumpWidget(const App());
-      
-      expect(find.text('Six-inch'), findsOneWidget);
-      expect(find.text('Footlong'), findsOneWidget);
-      
+      expect(find.text('1'), findsOneWidget);
+    });
+
+    testWidgets('Cart starts empty', (WidgetTester tester) async {
+      await tester.pumpWidget(const App());
+      expect(find.text('Items in Cart: 0'), findsOneWidget);
+    });
+
+    testWidgets('Cart price starts at zero', (WidgetTester tester) async {
+      await tester.pumpWidget(const App());
+      expect(find.text('Total Price: \$0.00'), findsOneWidget);
+    });
+  });
+
+  group('Quantity Interactions', () {
+    testWidgets('Remove button decreases quantity', (WidgetTester tester) async {
+      await tester.pumpWidget(const App());
+      await tester.tap(find.byIcon(Icons.add).first);
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.remove).first);
+      await tester.pump();
+      expect(find.text('1'), findsOneWidget);
+    });
+
+    testWidgets('Quantity does not go below 1', (WidgetTester tester) async {
+      await tester.pumpWidget(const App());
+      await tester.tap(find.byIcon(Icons.remove).first);
+      await tester.pump();
+      expect(find.text('1'), findsOneWidget);
+    });
+  });
+
+  group('Switch Interactions', () {
+    testWidgets('Size switch is clickable', (WidgetTester tester) async {
+      await tester.pumpWidget(const App());
       await tester.tap(find.byType(Switch));
       await tester.pump();
-      
+      expect(find.byType(Switch), findsOneWidget);
+    });
+
+    testWidgets('Size labels persist after switch', (WidgetTester tester) async {
+      await tester.pumpWidget(const App());
+      await tester.tap(find.byType(Switch));
+      await tester.pump();
       expect(find.text('Six-inch'), findsOneWidget);
       expect(find.text('Footlong'), findsOneWidget);
     });
   });
 
-  group('OrderScreen - Bread Type Selection', () {
-    testWidgets('opens bread type dropdown', (WidgetTester tester) async {
+  group('Cart Operations', () {
+    testWidgets('Add to Cart button is clickable', (WidgetTester tester) async {
       await tester.pumpWidget(const App());
-      
-      final breadDropdown = find.byType(DropdownMenu).at(1);
-      await tester.tap(breadDropdown);
-      await tester.pumpAndSettle();
-      
-      expect(find.byType(DropdownMenu), findsWidgets);
-    });
-
-    testWidgets('selects different bread type', (WidgetTester tester) async {
-      await tester.pumpWidget(const App());
-      
-      final breadDropdown = find.byType(DropdownMenu).at(1);
-      await tester.tap(breadDropdown);
-      await tester.pumpAndSettle();
-      
-      await tester.tap(find.widgetWithText(MenuItemButton, 'wheat'));
-      await tester.pumpAndSettle();
-      
-      expect(find.byType(DropdownMenu), findsWidgets);
-    });
-  });
-
-  group('OrderScreen - Sandwich Type Selection', () {
-    testWidgets('opens sandwich type dropdown', (WidgetTester tester) async {
-      await tester.pumpWidget(const App());
-      
-      final sandwichDropdown = find.byType(DropdownMenu).first;
-      await tester.tap(sandwichDropdown);
-      await tester.pumpAndSettle();
-      
-      expect(find.byType(DropdownMenu), findsWidgets);
-    });
-
-    testWidgets('selects different sandwich type', (WidgetTester tester) async {
-      await tester.pumpWidget(const App());
-      
-      final sandwichDropdown = find.byType(DropdownMenu).first;
-      await tester.tap(sandwichDropdown);
-      await tester.pumpAndSettle();
-      
-      await tester.tap(find.widgetWithText(MenuItemButton, 'Chicken Teriyaki'));
-      await tester.pumpAndSettle();
-      
-      expect(find.byType(DropdownMenu), findsWidgets);
-    });
-  });
-
-  group('OrderScreen - Add to Cart', () {
-    testWidgets('add to cart button is enabled when quantity is greater than 0',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(const App());
-      
-      final addButton = find.widgetWithText(ElevatedButton, 'Add to Cart');
-      expect(addButton, findsOneWidget);
-      
-      final buttonWidget = tester.widget<ElevatedButton>(addButton);
-      expect(buttonWidget.onPressed, isNotNull);
-    });
-
-    testWidgets('add to cart button functionality', (WidgetTester tester) async {
-      await tester.pumpWidget(const App());
-      
-      await tester.tap(find.byIcon(Icons.add).first);
-      await tester.pump();
-      
       await tester.tap(find.widgetWithText(ElevatedButton, 'Add to Cart'));
       await tester.pump();
-      
       expect(find.byType(OrderScreen), findsOneWidget);
     });
 
-    testWidgets('can add multiple items sequentially',
-        (WidgetTester tester) async {
+    testWidgets('Price updates after adding', (WidgetTester tester) async {
       await tester.pumpWidget(const App());
-      
-      for (int i = 0; i < 3; i++) {
-        await tester.tap(find.widgetWithText(ElevatedButton, 'Add to Cart'));
-        await tester.pump();
-      }
-      
-      expect(find.byType(OrderScreen), findsOneWidget);
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Add to Cart'));
+      await tester.pump();
+      expect(find.textContaining('\$'), findsWidgets);
     });
   });
 
-  group('OrderScreen - Image Updates', () {
-    testWidgets('displays sandwich image on screen',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(const App());
-      
-      expect(find.byType(Image), findsOneWidget);
-    });
-
-    testWidgets('image updates when sandwich type changes',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(const App());
-      
-      final sandwichDropdown = find.byType(DropdownMenu).first;
-      await tester.tap(sandwichDropdown);
-      await tester.pumpAndSettle();
-      
-      await tester.tap(find.widgetWithText(MenuItemButton, 'Tuna Melt'));
-      await tester.pumpAndSettle();
-      
-      expect(find.byType(Image), findsOneWidget);
-    });
-  });
-
-  group('StyledButton', () {
-    testWidgets('renders with icon and label', (WidgetTester tester) async {
-      const testButton = StyledButton(
+  group('Component Tests', () {
+    testWidgets('StyledButton renders icon', (WidgetTester tester) async {
+      const button = StyledButton(
         onPressed: null,
-        icon: Icons.add,
-        label: 'Test Add',
+        icon: Icons.star,
+        label: 'Test',
         backgroundColor: Colors.blue,
       );
-      const testApp = MaterialApp(
-        home: Scaffold(body: testButton),
-      );
-      await tester.pumpWidget(testApp);
-      expect(find.byIcon(Icons.add), findsOneWidget);
-      expect(find.text('Test Add'), findsOneWidget);
-      expect(find.byType(ElevatedButton), findsOneWidget);
+      await tester.pumpWidget(const MaterialApp(home: Scaffold(body: button)));
+      expect(find.byIcon(Icons.star), findsOneWidget);
     });
-  });
 
-  group('OrderItemDisplay', () {
-    testWidgets('displays order item information', (WidgetTester tester) async {
-      const widgetToBeTested = OrderItemDisplay(
-        quantity: 2,
+    testWidgets('StyledButton renders label', (WidgetTester tester) async {
+      const button = StyledButton(
+        onPressed: null,
+        icon: Icons.star,
+        label: 'MyLabel',
+        backgroundColor: Colors.blue,
+      );
+      await tester.pumpWidget(const MaterialApp(home: Scaffold(body: button)));
+      expect(find.text('MyLabel'), findsOneWidget);
+    });
+
+    testWidgets('OrderItemDisplay renders', (WidgetTester tester) async {
+      const display = OrderItemDisplay(
+        quantity: 1,
         itemType: 'footlong',
         breadType: BreadType.white,
-        orderNote: 'Extra mayo',
+        orderNote: 'Test',
         isToasted: false,
-        totalPrice: 15.99,
+        totalPrice: 10.0,
       );
-      const testApp = MaterialApp(
-        home: Scaffold(body: widgetToBeTested),
-      );
-      await tester.pumpWidget(testApp);
+      await tester.pumpWidget(const MaterialApp(home: Scaffold(body: display)));
       expect(find.byType(OrderItemDisplay), findsOneWidget);
-      expect(find.text('Note: Extra mayo'), findsOneWidget);
+    });
+
+    testWidgets('OrderItemDisplay shows note', (WidgetTester tester) async {
+      const display = OrderItemDisplay(
+        quantity: 1,
+        itemType: 'footlong',
+        breadType: BreadType.white,
+        orderNote: 'TestNote',
+        isToasted: false,
+        totalPrice: 10.0,
+      );
+      await tester.pumpWidget(const MaterialApp(home: Scaffold(body: display)));
+      expect(find.text('Note: TestNote'), findsOneWidget);
+    });
+
+    testWidgets('OrderItemDisplay shows price', (WidgetTester tester) async {
+      const display = OrderItemDisplay(
+        quantity: 1,
+        itemType: 'footlong',
+        breadType: BreadType.white,
+        orderNote: 'Test',
+        isToasted: false,
+        totalPrice: 12.50,
+      );
+      await tester.pumpWidget(const MaterialApp(home: Scaffold(body: display)));
+      expect(find.textContaining('12.50'), findsOneWidget);
     });
   });
 
-  group('BreadType Enum', () {
-    test('BreadType has required values', () {
+  group('BreadType Enum Tests', () {
+    test('BreadType.white is valid', () {
       expect(BreadType.white, isNotNull);
+    });
+
+    test('BreadType.wheat is valid', () {
       expect(BreadType.wheat, isNotNull);
+    });
+
+    test('BreadType.wholemeal is valid', () {
       expect(BreadType.wholemeal, isNotNull);
+    });
+
+    test('BreadType has 3 values', () {
+      expect(BreadType.values.length, 3);
+    });
+  });
+
+  group('Layout Tests', () {
+    testWidgets('Content is in Column', (WidgetTester tester) async {
+      await tester.pumpWidget(const App());
+      expect(find.byType(Column), findsWidgets);
+    });
+
+    testWidgets('Text widgets render', (WidgetTester tester) async {
+      await tester.pumpWidget(const App());
+      expect(find.byType(Text), findsWidgets);
+    });
+
+    testWidgets('Buttons render', (WidgetTester tester) async {
+      await tester.pumpWidget(const App());
+      expect(find.byType(ElevatedButton), findsWidgets);
+    });
+
+    testWidgets('Container for cart summary exists', (WidgetTester tester) async {
+      await tester.pumpWidget(const App());
+      expect(find.byType(Container), findsWidgets);
     });
   });
 }

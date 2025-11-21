@@ -85,7 +85,6 @@ class _OrderScreenState extends State<OrderScreen> {
             label: 'Undo',
             textColor: Colors.white,
             onPressed: () {
-              // Implement undo functionality if needed
               debugPrint('Undo pressed');
             },
           ),
@@ -289,6 +288,37 @@ class _OrderScreenState extends State<OrderScreen> {
                   icon: Icons.add_shopping_cart,
                   label: 'Add to Cart',
                   backgroundColor: Colors.green,
+                ),
+                const SizedBox(height: 30),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey, width: 2),
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.grey[100],
+                  ),
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'Cart Summary',
+                        style: heading1,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Items in Cart: ${_cart.totalQuantity}',
+                        style: normalText.copyWith(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Total Price: \$${_cart.subtotal.toStringAsFixed(2)}',
+                        style: normalText.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green[700],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 20),
               ],

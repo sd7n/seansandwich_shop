@@ -27,6 +27,21 @@ class Cart {
     return total;
   }
 
+  void add(Sandwich sandwich, {required int quantity}) {
+    if (quantity <= 0) return;
+    
+    final cartItem = CartItem(
+      sandwichType: sandwich.type,
+      breadType: sandwich.breadType,
+      isFootlong: sandwich.isFootlong,
+      isToasted: false,
+      specialInstructions: '',
+      quantity: quantity,
+    );
+
+    addItem(cartItem);
+  }
+
   void addItem(CartItem item) {
     final existingIndex = _items.indexWhere(
       (cartItem) =>
@@ -75,6 +90,4 @@ class Cart {
     }
     return null;
   }
-
-  void add(Sandwich sandwich, {required int quantity}) {}
 }

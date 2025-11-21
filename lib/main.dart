@@ -81,13 +81,6 @@ class _OrderScreenState extends State<OrderScreen> {
           content: Text(confirmationMessage),
           duration: const Duration(seconds: 3),
           backgroundColor: Colors.green,
-          action: SnackBarAction(
-            label: 'Undo',
-            textColor: Colors.white,
-            onPressed: () {
-              debugPrint('Undo pressed');
-            },
-          ),
         ),
       );
 
